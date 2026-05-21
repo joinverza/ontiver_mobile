@@ -1,27 +1,20 @@
 import React from 'react';
-import { useRouter } from 'expo-router';
-import { TextInput as RNTextInput } from 'react-native';
-import { AUTH_COLORS, PinCells } from '@/components/auth/auth-ui';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { AUTH_COLORS, DigitPad, PinCells } from '@/components/auth/auth-ui';
 import { Screen } from '@/components/screen';
 import { Text, View } from '@/src/tw';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function PinSetupScreen() {
   const insets = useSafeAreaInsets();
-  const inputRef = React.useRef<RNTextInput>(null);
   const router = useRouter();
+  const params = useLocalSearchParams<{ next?: string | string[]; title?: string | string[] }>();
+  const next = Array.isArray(params.next) ? params.next[0] : params.next;
+  const title = Array.isArray(params.title) ? params.title[0] : params.title;
   const [pin, setPin] = React.useState('');
   const [confirmPin, setConfirmPin] = React.useState('');
   const [activeField, setActiveField] = React.useState<'pin' | 'confirm'>('pin');
   const [hasMismatch, setHasMismatch] = React.useState(false);
-
-  React.useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 200);
-
-    return () => clearTimeout(timeoutId);
-  }, [activeField]);
 
   React.useEffect(() => {
     if (pin.length === 6 && activeField === 'pin') {
@@ -42,14 +35,14 @@ export default function PinSetupScreen() {
     setHasMismatch(false);
 
     const timeoutId = setTimeout(() => {
-      router.replace('/id-type');
+      router.replace(next === 'dashboard' ? '/(tabs)?mode=full' : '/biometric-login');
     }, 350);
 
     return () => clearTimeout(timeoutId);
-  }, [confirmPin, pin, router]);
+  }, [confirmPin, next, pin, router]);
 
   const handleChange = (nextValue: string) => {
-    const sanitized = nextValue.replace(/\D/g, '').slice(0, 6);
+    const sanitized = nextValue.slice(0, 6);
 
     if (activeField === 'pin') {
       setPin(sanitized);
@@ -84,7 +77,7 @@ export default function PinSetupScreen() {
           className="font-inter font-extrabold"
           style={{ color: AUTH_COLORS.ink, fontSize: 22, lineHeight: 28, marginTop: 44 }}
         >
-          Create Your 6-Digit PIN
+          {title === 'reset' ? 'Set a New PIN' : 'Create Your 6-Digit PIN'}
         </Text>
         <Text
           className="font-inter"
@@ -101,7 +94,7 @@ export default function PinSetupScreen() {
             >
               Input Pin
             </Text>
-            <PinCells onPress={() => inputRef.current?.focus()} value={pin} />
+            <PinCells onPress={() => setActiveField('pin')} value={pin} />
           </View>
 
           <View>
@@ -113,10 +106,7 @@ export default function PinSetupScreen() {
             </Text>
             <PinCells
               error={hasMismatch}
-              onPress={() => {
-                setActiveField('confirm');
-                inputRef.current?.focus();
-              }}
+              onPress={() => setActiveField('confirm')}
               value={confirmPin}
             />
             {hasMismatch ? (
@@ -137,26 +127,12 @@ export default function PinSetupScreen() {
         </View>
 
         <View style={{ marginTop: 'auto' }}>
-          <Text
-            className="font-inter text-center"
-            style={{ color: '#A2A1B6', fontSize: 14, lineHeight: 20 }}
-          >
-            {activeField === 'pin'
-              ? 'Enter your new 6-digit PIN.'
-              : 'Confirm the same PIN to continue.'}
-          </Text>
+          <DigitPad
+            onBackspace={() => handleChange(inputValue.slice(0, -1))}
+            onDigit={(digit) => handleChange(`${inputValue}${digit}`)}
+            onLeftKey={() => {}}
+          />
         </View>
-
-        <RNTextInput
-          autoFocus
-          keyboardType="number-pad"
-          maxLength={6}
-          onChangeText={handleChange}
-          ref={inputRef}
-          style={{ height: 1, opacity: 0, position: 'absolute', width: 1 }}
-          textContentType="oneTimeCode"
-          value={inputValue}
-        />
       </View>
     </Screen>
   );

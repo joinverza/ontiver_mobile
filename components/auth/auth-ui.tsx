@@ -6,6 +6,15 @@ import { Pressable, ScrollView, Text, TextInput, View } from '@/src/tw';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { KeyboardTypeOptions, TextInputProps, ViewStyle } from 'react-native';
+import Svg, {
+  Circle,
+  Defs,
+  LinearGradient,
+  Path,
+  Rect,
+  Stop,
+  Text as SvgText,
+} from 'react-native-svg';
 
 export const AUTH_COLORS = {
   navy: '#09054F',
@@ -18,6 +27,9 @@ export const AUTH_COLORS = {
   successDeep: '#7CB518',
   toast: '#B3F238',
   soft: '#F7F7FB',
+  warning: '#FFC246',
+  warningText: '#5A3600',
+  successSoft: '#E9F9C6',
 };
 
 type AuthScreenFrameProps = {
@@ -621,5 +633,425 @@ export function SideDecorations() {
         }}
       />
     </>
+  );
+}
+
+type FlowProgressProps = {
+  current: number;
+  light?: boolean;
+  total?: number;
+};
+
+export function FlowProgress({
+  current,
+  light = false,
+  total = 5,
+}: FlowProgressProps) {
+  return (
+    <View style={{ flexDirection: 'row', gap: 6 }}>
+      {Array.from({ length: total }).map((_, index) => {
+        const active = index < current;
+
+        return (
+          <View
+            key={`progress-${index}`}
+            style={{
+              backgroundColor: active
+                ? light
+                  ? '#FFFFFF'
+                  : AUTH_COLORS.navy
+                : light
+                  ? 'rgba(255,255,255,0.28)'
+                  : '#ECE9F8',
+              borderRadius: 999,
+              height: 4,
+              width: 28,
+            }}
+          />
+        );
+      })}
+    </View>
+  );
+}
+
+export function DarkFlowDecorations() {
+  return (
+    <>
+      <View
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.08)',
+          borderRadius: 999,
+          height: 210,
+          left: -146,
+          position: 'absolute',
+          top: 130,
+          width: 210,
+        }}
+      />
+      <View
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.08)',
+          borderRadius: 999,
+          bottom: -24,
+          height: 240,
+          position: 'absolute',
+          right: -144,
+          width: 240,
+        }}
+      />
+      <View
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.04)',
+          borderRadius: 999,
+          bottom: 42,
+          height: 168,
+          left: -98,
+          position: 'absolute',
+          width: 168,
+        }}
+      />
+    </>
+  );
+}
+
+type DigitPadProps = {
+  disabled?: boolean;
+  leftLabel?: string;
+  onBackspace: () => void;
+  onDigit: (digit: string) => void;
+  onLeftKey?: () => void;
+};
+
+export function DigitPad({
+  disabled = false,
+  leftLabel = '+*#',
+  onBackspace,
+  onDigit,
+  onLeftKey,
+}: DigitPadProps) {
+  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+  return (
+    <View style={{ gap: 4, marginTop: 12 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
+        {keys.map((key) => (
+          <DigitKey
+            key={key}
+            disabled={disabled}
+            label={key}
+            subLabel={digitSubLabel(key)}
+            onPress={() => onDigit(key)}
+          />
+        ))}
+
+        <DigitKey
+          disabled={disabled}
+          label={leftLabel}
+          onPress={onLeftKey}
+        />
+        <DigitKey disabled={disabled} label="0" onPress={() => onDigit('0')} />
+        <DigitKey
+          disabled={disabled}
+          icon="backspace-outline"
+          onPress={onBackspace}
+        />
+      </View>
+    </View>
+  );
+}
+
+function DigitKey({
+  disabled,
+  icon,
+  label,
+  onPress,
+  subLabel,
+}: {
+  disabled?: boolean;
+  icon?: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+  label?: string;
+  onPress?: () => void;
+  subLabel?: string;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      disabled={disabled || !onPress}
+      onPress={onPress}
+      style={{
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderColor: '#D4D7E2',
+        borderCurve: 'continuous',
+        borderRadius: 6,
+        borderWidth: 1,
+        height: 54,
+        justifyContent: 'center',
+        width: '32.2%',
+      }}
+    >
+      {icon ? (
+        <MaterialCommunityIcons color={AUTH_COLORS.ink} name={icon} size={22} />
+      ) : (
+        <>
+          <Text
+            className="font-inter"
+            style={{ color: AUTH_COLORS.ink, fontSize: 18, lineHeight: 20 }}
+          >
+            {label}
+          </Text>
+          {subLabel ? (
+            <Text
+              className="font-inter"
+              style={{
+                color: AUTH_COLORS.ink,
+                fontSize: 9,
+                fontWeight: '700',
+                lineHeight: 10,
+                marginTop: 1,
+              }}
+            >
+              {subLabel}
+            </Text>
+          ) : null}
+        </>
+      )}
+    </Pressable>
+  );
+}
+
+function digitSubLabel(value: string) {
+  switch (value) {
+    case '2':
+      return 'ABC';
+    case '3':
+      return 'DEF';
+    case '4':
+      return 'GHI';
+    case '5':
+      return 'JKL';
+    case '6':
+      return 'MNO';
+    case '7':
+      return 'PQRS';
+    case '8':
+      return 'TUV';
+    case '9':
+      return 'WXYZ';
+    default:
+      return '';
+  }
+}
+
+type StatusBannerProps = {
+  message: string;
+  onClose?: () => void;
+  tone: 'error' | 'success' | 'warning';
+};
+
+export function StatusBanner({ message, onClose, tone }: StatusBannerProps) {
+  const palette = {
+    error: {
+      bg: '#FF7378',
+      fg: '#3B070C',
+      icon: 'alert-circle-outline' as const,
+    },
+    success: {
+      bg: AUTH_COLORS.toast,
+      fg: '#173100',
+      icon: 'check-circle-outline' as const,
+    },
+    warning: {
+      bg: AUTH_COLORS.warning,
+      fg: AUTH_COLORS.warningText,
+      icon: 'alert-outline' as const,
+    },
+  }[tone];
+
+  return (
+    <View
+      style={{
+        alignItems: 'center',
+        backgroundColor: palette.bg,
+        borderCurve: 'continuous',
+        borderRadius: 12,
+        flexDirection: 'row',
+        gap: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+      }}
+    >
+      <MaterialCommunityIcons color={palette.fg} name={palette.icon} size={20} />
+      <Text
+        selectable
+        className="font-inter"
+        style={{ color: palette.fg, flex: 1, fontSize: 12, lineHeight: 16 }}
+      >
+        {message}
+      </Text>
+      {onClose ? (
+        <Pressable accessibilityRole="button" hitSlop={10} onPress={onClose}>
+          <MaterialCommunityIcons color={palette.fg} name="close" size={18} />
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+type VaultaShieldArtProps = {
+  label?: string;
+  size?: number;
+  variant?: 'check' | 'lock' | 'plain';
+};
+
+export function VaultaShieldArt({
+  label,
+  size = 220,
+  variant = 'plain',
+}: VaultaShieldArtProps) {
+  const height = size * 1.08;
+
+  return (
+    <Svg height={height} viewBox="0 0 240 260" width={size}>
+      <Defs>
+        <LinearGradient id="shieldOuter" x1="0%" x2="100%" y1="0%" y2="100%">
+          <Stop offset="0%" stopColor="#F6F8FC" />
+          <Stop offset="35%" stopColor="#9AA6B8" />
+          <Stop offset="60%" stopColor="#E8EEF7" />
+          <Stop offset="100%" stopColor="#798395" />
+        </LinearGradient>
+        <LinearGradient id="shieldInner" x1="5%" x2="100%" y1="0%" y2="100%">
+          <Stop offset="0%" stopColor="#0919AA" />
+          <Stop offset="58%" stopColor="#12238F" />
+          <Stop offset="100%" stopColor="#00A9DD" />
+        </LinearGradient>
+        <LinearGradient id="shieldCore" x1="0%" x2="100%" y1="0%" y2="100%">
+          <Stop offset="0%" stopColor="#1820B4" />
+          <Stop offset="70%" stopColor="#081A77" />
+          <Stop offset="100%" stopColor="#08145E" />
+        </LinearGradient>
+      </Defs>
+
+      <Path
+        d="M120 12C154 32 196 37 214 45V132C214 194 173 233 120 252C67 233 26 194 26 132V45C44 37 86 32 120 12Z"
+        fill="url(#shieldOuter)"
+      />
+      <Path
+        d="M120 24C150 41 184 46 198 52V130C198 185 164 219 120 238C76 219 42 185 42 130V52C56 46 90 41 120 24Z"
+        fill="url(#shieldInner)"
+      />
+      <Path
+        d="M120 31C147 46 176 50 188 55V128C188 177 158 208 120 226C82 208 52 177 52 128V55C64 50 93 46 120 31Z"
+        fill="url(#shieldCore)"
+        opacity={0.95}
+      />
+      <Circle cx="168" cy="90" fill="rgba(255,255,255,0.12)" r="56" />
+      <Rect
+        fill="rgba(255,255,255,0.1)"
+        height="168"
+        rx="84"
+        transform="rotate(-28 98 120)"
+        width="38"
+        x="79"
+        y="36"
+      />
+
+      {label ? (
+        <SvgText
+          fill="#0E63FF"
+          fontSize="24"
+          fontWeight="700"
+          textAnchor="middle"
+          x="120"
+          y="152"
+        >
+          {label}
+        </SvgText>
+      ) : null}
+
+      {variant === 'check' ? (
+        <Path
+          d="M94 136L115 158L154 111"
+          fill="none"
+          stroke="#FFFFFF"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="18"
+        />
+      ) : null}
+
+      {variant === 'lock' ? (
+        <>
+          <Path
+            d="M94 115C94 93 104 81 120 81C136 81 146 93 146 115"
+            fill="none"
+            stroke="#F6F8FC"
+            strokeLinecap="round"
+            strokeWidth="12"
+          />
+          <Rect
+            fill="#F6F8FC"
+            height="52"
+            rx="14"
+            width="72"
+            x="84"
+            y="112"
+          />
+          <Circle cx="120" cy="136" fill="#4D4A68" r="8" />
+          <Path
+            d="M120 142V156"
+            fill="none"
+            stroke="#4D4A68"
+            strokeLinecap="round"
+            strokeWidth="6"
+          />
+        </>
+      ) : null}
+    </Svg>
+  );
+}
+
+type ProcessingRingsProps = {
+  size?: number;
+};
+
+export function ProcessingRings({ size = 220 }: ProcessingRingsProps) {
+  return (
+    <Svg height={size} viewBox="0 0 220 220" width={size}>
+      <Circle
+        cx="110"
+        cy="110"
+        fill="none"
+        opacity={0.2}
+        r="84"
+        stroke="#7FA6FF"
+        strokeDasharray="4 6"
+        strokeWidth="3"
+      />
+      <Circle
+        cx="110"
+        cy="110"
+        fill="none"
+        opacity={0.35}
+        r="54"
+        stroke="#7FA6FF"
+        strokeDasharray="4 6"
+        strokeWidth="3"
+      />
+      <Circle
+        cx="110"
+        cy="110"
+        fill="none"
+        opacity={0.55}
+        r="28"
+        stroke="#7FA6FF"
+        strokeDasharray="4 6"
+        strokeWidth="3"
+      />
+      <Circle cx="98" cy="110" fill="#FFFFFF" r="2.5" />
+      <Circle cx="110" cy="110" fill="#FFFFFF" r="2.5" />
+      <Circle cx="122" cy="110" fill="#FFFFFF" r="2.5" />
+      <Circle cx="134" cy="110" fill="#FFFFFF" r="2.5" />
+    </Svg>
   );
 }

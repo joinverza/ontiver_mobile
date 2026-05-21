@@ -1,134 +1,378 @@
 import React from 'react';
-import { View, Text, ScrollView, Pressable, MotiView, AnimatedView } from '@/src/tw';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 import { Screen } from '@/components/screen';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useSharedValue, useAnimatedStyle, withTiming, Easing, withDelay } from 'react-native-reanimated';
+import { VaultaShieldArt } from '@/components/auth/auth-ui';
+import { Pressable, ScrollView, Text, View } from '@/src/tw';
+
+const CREDENTIALS = [
+  { id: 1, title: 'National ID', date: '15th Apr. 2026', status: 'Verified', tone: 'green' },
+  { id: 2, title: 'National ID', date: '15th Apr. 2026', status: 'Pending', tone: 'amber' },
+];
+
+const ACTIVITIES = [
+  { id: 1, label: 'Credential Added', date: '15th April, 2026', status: 'Verified', tone: 'green' },
+  { id: 2, label: 'Credential Added', date: '15th April, 2026', status: 'Pending', tone: 'amber' },
+  { id: 3, label: 'Credential Added', date: '15th April, 2026', status: 'Pending', tone: 'red' },
+  { id: 4, label: 'Credential Added', date: '15th April, 2026', status: 'Verified', tone: 'green' },
+  { id: 5, label: 'Credential Added', date: '15th April, 2026', status: 'Declined', tone: 'red' },
+  { id: 6, label: 'Credential Added', date: '15th April, 2026', status: 'Pending', tone: 'amber' },
+];
 
 export default function HubScreen() {
-  const progressValue = useSharedValue(0);
+  const router = useRouter();
+  const params = useLocalSearchParams<{ mode?: string | string[] }>();
+  const mode = Array.isArray(params.mode) ? params.mode[0] : params.mode;
+  const isFull = mode === 'full';
 
-  React.useEffect(() => {
-    progressValue.value = withDelay(500, withTiming(0.68, { duration: 1500, easing: Easing.out(Easing.cubic) }));
-  }, [progressValue]);
-
-  const progressStyle = useAnimatedStyle(() => {
-    return {
-      borderWidth: 12,
-      borderColor: '#6C3FF5',
-      borderRadius: 100,
-      width: 160,
-      height: 160,
-      position: 'absolute' as const,
-      borderTopColor: 'transparent',
-      borderRightColor: progressValue.value > 0.25 ? '#6C3FF5' : 'transparent',
-      borderBottomColor: progressValue.value > 0.5 ? '#6C3FF5' : 'transparent',
-      transform: [
-        { rotate: `${progressValue.value * 360 - 45}deg` },
-      ]
-    };
-  });
+  if (!isFull) {
+    return (
+      <Screen className="bg-white" safe={false}>
+        <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 32, paddingHorizontal: 22 }}
+          showsVerticalScrollIndicator={false}
+          style={{ flex: 1 }}
+        >
+          <View style={{ alignItems: 'center', marginTop: 68 }}>
+            <VaultaShieldArt label="VAULTA" size={230} />
+          </View>
+          <Text
+            className="font-inter font-extrabold text-center"
+            style={{ color: '#17153D', fontSize: 28, lineHeight: 32, marginTop: 16 }}
+          >
+            Welcome to Vaulta!
+          </Text>
+          <Text
+            className="font-inter text-center"
+            style={{ color: '#272443', fontSize: 16, lineHeight: 22, marginTop: 10 }}
+          >
+            Verify your identity to unlock your Privacy Score and start sharing.
+          </Text>
+          <View style={{ marginTop: 28 }}>
+            <Pressable
+              onPress={() => router.push('/id-type')}
+              style={{
+                alignItems: 'center',
+                backgroundColor: '#09054F',
+                borderRadius: 12,
+                height: 48,
+                justifyContent: 'center',
+              }}
+            >
+              <Text
+                className="font-inter font-extrabold"
+                style={{ color: '#FFFFFF', fontSize: 17, lineHeight: 22 }}
+              >
+                Verify My Identity
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </Screen>
+    );
+  }
 
   return (
-    <Screen className="bg-[#F5F6FA] flex-1">
-      <View className="px-6 pt-12 pb-4 flex-row justify-between items-center bg-white z-10">
-        <Text className="text-slate-900 font-inter font-extrabold text-2xl tracking-tight">VAULTA</Text>
-        <Pressable className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center">
-          <IconSymbol name="bell.fill" size={20} color="#0F172A" />
-          <View className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border border-white" />
-        </Pressable>
-      </View>
+    <Screen className="bg-white" safe={false}>
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 14, paddingTop: 22 }}
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+      >
+        <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
+          <View style={{ alignItems: 'center', flexDirection: 'row' }}>
+            <Image
+              source={{ uri: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop' }}
+              style={{ borderRadius: 999, height: 48, width: 48 }}
+            />
+            <View style={{ marginLeft: 10 }}>
+              <Text className="font-inter" style={{ color: '#86839E', fontSize: 14, lineHeight: 18 }}>
+                Welcome Back
+              </Text>
+              <Text
+                className="font-inter font-extrabold"
+                style={{ color: '#13113A', fontSize: 24, lineHeight: 28 }}
+              >
+                Gracious
+              </Text>
+            </View>
+          </View>
+          <Pressable style={{ padding: 8 }}>
+            <IconSymbol color="#18154A" name="bell.fill" size={24} />
+            <View
+              style={{
+                backgroundColor: '#FF4D4D',
+                borderColor: '#FFFFFF',
+                borderRadius: 999,
+                borderWidth: 1,
+                height: 8,
+                position: 'absolute',
+                right: 7,
+                top: 7,
+                width: 8,
+              }}
+            />
+          </Pressable>
+        </View>
 
-      <ScrollView className="flex-1 px-6 pt-6" showsVerticalScrollIndicator={false}>
-        {/* Core Score Card */}
-        <MotiView
-          from={{ opacity: 0, translateY: 20 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          className="bg-slate-900 rounded-3xl p-6 mb-6 overflow-hidden relative"
+        <View
+          style={{
+            backgroundColor: '#1A2A22',
+            borderRadius: 18,
+            flexDirection: 'row',
+            marginTop: 18,
+            minHeight: 150,
+            overflow: 'hidden',
+          }}
         >
-          <Text className="text-white/80 font-inter font-medium text-sm mb-6 uppercase tracking-wider">
-            Privacy Score
+          <View
+            style={{
+              backgroundColor: '#2A312F',
+              bottom: -90,
+              height: 180,
+              position: 'absolute',
+              right: -50,
+              transform: [{ rotate: '12deg' }],
+              width: 180,
+            }}
+          />
+          <View style={{ flex: 1, justifyContent: 'space-between', padding: 16 }}>
+            <View
+              style={{
+                alignSelf: 'flex-start',
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                borderColor: 'rgba(255,255,255,0.28)',
+                borderRadius: 999,
+                borderWidth: 1,
+                paddingHorizontal: 16,
+                paddingVertical: 4,
+              }}
+            >
+              <Text className="font-inter" style={{ color: '#D8E8DB', fontSize: 12, lineHeight: 16 }}>
+                NIN Verified
+              </Text>
+            </View>
+            <View>
+              <Text className="font-inter" style={{ color: '#FFFFFF', fontSize: 13, lineHeight: 18 }}>
+                Lawrernce
+              </Text>
+              <Text
+                className="font-inter font-extrabold"
+                style={{ color: '#FFFFFF', fontSize: 18, lineHeight: 22 }}
+              >
+                Gracious
+              </Text>
+              <Text className="font-inter" style={{ color: '#D1D8D2', fontSize: 11, lineHeight: 16 }}>
+                15-05-2026
+              </Text>
+            </View>
+          </View>
+          <View style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 }}>
+            <View
+              style={{
+                alignItems: 'center',
+                backgroundColor: '#16E58B',
+                borderRadius: 999,
+                height: 110,
+                justifyContent: 'center',
+                width: 110,
+              }}
+            >
+              <IconSymbol color="#FFFFFF" name="checkmark.circle.fill" size={64} />
+            </View>
+          </View>
+        </View>
+
+        <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
+          {[0, 1, 2].map((index) => (
+            <View
+              key={index}
+              style={{
+                backgroundColor: index === 0 ? '#2E274D' : '#D5D3E0',
+                borderRadius: 999,
+                height: 8,
+                marginHorizontal: 3,
+                width: 8,
+              }}
+            />
+          ))}
+        </View>
+
+        <View
+          style={{
+            alignItems: 'center',
+            borderColor: '#F3C57B',
+            borderCurve: 'continuous',
+            borderRadius: 14,
+            borderWidth: 1,
+            flexDirection: 'row',
+            marginTop: 14,
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+          }}
+        >
+          <IconSymbol color="#1A173F" name="bell.fill" size={18} />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text className="font-inter font-extrabold" style={{ color: '#1B1740', fontSize: 14, lineHeight: 18 }}>
+              2 new request waiting
+            </Text>
+            <Text className="font-inter" style={{ color: '#7C7894', fontSize: 11, lineHeight: 16 }}>
+              Paystack and 2 others want to verify...
+            </Text>
+          </View>
+        </View>
+
+        <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginTop: 18 }}>
+          <Text className="font-inter font-extrabold" style={{ color: '#1A183F', fontSize: 18, lineHeight: 22 }}>
+            My Credentials
           </Text>
+          <Pressable>
+            <Text className="font-inter" style={{ color: '#AAA7BF', fontSize: 14, lineHeight: 18 }}>
+              See All
+            </Text>
+          </Pressable>
+        </View>
 
-          <View className="items-center justify-center my-4">
-            <View className="w-[160px] h-[160px] items-center justify-center relative">
-              {/* Background Ring */}
-              <View className="absolute inset-0 rounded-full border-[12px] border-white/10" />
-              
-              {/* Animated Foreground Ring */}
-              <AnimatedView style={progressStyle} />
-
-              <View className="items-center">
-                <Text className="text-white font-inter text-5xl font-black">68</Text>
-                <Text className="text-white/60 font-inter text-xs mt-1">out of 100</Text>
+        <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
+          {CREDENTIALS.map((item) => (
+            <View
+              key={item.id}
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderColor: '#F0EEF7',
+                borderCurve: 'continuous',
+                borderRadius: 16,
+                borderWidth: 1,
+                flex: 1,
+                padding: 14,
+              }}
+            >
+              <Text className="font-inter" style={{ color: '#16A34A', fontSize: 11, lineHeight: 14 }}>
+                Nigeria
+              </Text>
+              <Text
+                className="font-inter font-extrabold"
+                style={{ color: '#1A183F', fontSize: 18, lineHeight: 22, marginTop: 6 }}
+              >
+                {item.title}
+              </Text>
+              <Text className="font-inter" style={{ color: '#83809A', fontSize: 11, lineHeight: 16, marginTop: 8 }}>
+                {item.date}
+              </Text>
+              <View style={{ alignItems: 'center', flexDirection: 'row', marginTop: 8 }}>
+                <IconSymbol
+                  color={item.tone === 'green' ? '#22C55E' : '#FB923C'}
+                  name={item.tone === 'green' ? 'checkmark.circle.fill' : 'exclamationmark.triangle.fill'}
+                  size={14}
+                />
+                <Text
+                  className="font-inter"
+                  style={{
+                    color: item.tone === 'green' ? '#22C55E' : '#FB923C',
+                    fontSize: 12,
+                    lineHeight: 16,
+                    marginLeft: 5,
+                  }}
+                >
+                  {item.status}
+                </Text>
               </View>
             </View>
-          </View>
+          ))}
+        </View>
 
-          <View className="flex-row justify-between items-center mt-6 pt-4 border-t border-white/10">
-            <Text className="text-white/60 font-inter text-sm">Status: <Text className="text-brand-violet font-semibold">Good</Text></Text>
-            <Text className="text-white/40 font-inter text-xs">Updated just now</Text>
-          </View>
-        </MotiView>
-
-        {/* Notification/Alert Bar */}
-        <MotiView
-          from={{ opacity: 0, translateX: -20 }}
-          animate={{ opacity: 1, translateX: 0 }}
-          transition={{ delay: 200 }}
-          className="bg-white rounded-2xl p-4 mb-8 flex-row items-center border border-slate-200"
-        >
-          <View className="w-10 h-10 bg-amber-100 rounded-full items-center justify-center mr-3">
-            <IconSymbol name="exclamationmark.circle.fill" size={20} color="#D97706" />
-          </View>
-          <View className="flex-1">
-            <Text className="text-slate-900 font-bold text-base mb-0.5">2 requests pending</Text>
-            <Text className="text-slate-500 text-xs">Action required to secure account</Text>
-          </View>
-          <View className="flex-row gap-2">
-            <Pressable className="px-3 py-1.5 bg-slate-100 rounded-lg">
-              <Text className="text-slate-600 font-medium text-xs">Ignore</Text>
-            </Pressable>
-            <Pressable className="px-3 py-1.5 bg-slate-900 rounded-lg">
-              <Text className="text-white font-medium text-xs">Review</Text>
-            </Pressable>
-          </View>
-        </MotiView>
-
-        {/* My Credentials */}
-        <MotiView
-          from={{ opacity: 0, translateY: 20 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{ delay: 400 }}
-          className="mb-8"
-        >
-          <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-slate-900 font-inter text-xl font-bold">My Credentials</Text>
-            <Pressable>
-              <Text className="text-brand-violet font-medium text-sm">View All</Text>
-            </Pressable>
-          </View>
-
-          <Pressable className="bg-white rounded-2xl p-4 flex-row items-center border border-slate-200 mb-3">
-            <View className="w-12 h-12 bg-blue-50 rounded-xl items-center justify-center mr-4">
-              <IconSymbol name="person.crop.rectangle.fill" size={24} color="#007AFF" />
-            </View>
-            <View className="flex-1">
-              <Text className="text-slate-900 font-bold text-base mb-0.5">National ID Card</Text>
-              <Text className="text-slate-500 text-xs">Added 24 Mar 2024</Text>
-            </View>
-            <View className="w-6 h-6 bg-blue-100 rounded-full items-center justify-center">
-              <IconSymbol name="checkmark.seal.fill" size={14} color="#007AFF" />
-            </View>
+        <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginTop: 22 }}>
+          <Text className="font-inter font-extrabold" style={{ color: '#1A183F', fontSize: 18, lineHeight: 22 }}>
+            Recent Activities
+          </Text>
+          <Pressable>
+            <Text className="font-inter" style={{ color: '#AAA7BF', fontSize: 14, lineHeight: 18 }}>
+              See All
+            </Text>
           </Pressable>
-          
-          <Pressable className="bg-slate-100 border border-slate-200 rounded-2xl p-4 flex-row items-center justify-center">
-            <IconSymbol name="plus.circle.fill" size={20} color="#64748B" />
-            <Text className="text-slate-600 font-semibold text-sm ml-2">Add New Credential</Text>
-          </Pressable>
-        </MotiView>
-        
-        <View className="h-10" />
+        </View>
+
+        <View style={{ gap: 10, marginTop: 12 }}>
+          {ACTIVITIES.map((item) => (
+            <View
+              key={item.id}
+              style={{
+                alignItems: 'center',
+                backgroundColor: '#FFFFFF',
+                borderColor: '#F0EEF7',
+                borderCurve: 'continuous',
+                borderRadius: 16,
+                borderWidth: 1,
+                flexDirection: 'row',
+                paddingHorizontal: 12,
+                paddingVertical: 12,
+              }}
+            >
+              <View
+                style={{
+                  alignItems: 'center',
+                  borderColor: '#DCD9EA',
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  height: 34,
+                  justifyContent: 'center',
+                  width: 34,
+                }}
+              >
+                <IconSymbol color="#261F54" name="doc.text.magnifyingglass" size={18} />
+              </View>
+              <View style={{ flex: 1, marginLeft: 10 }}>
+                <Text className="font-inter" style={{ color: '#1A183F', fontSize: 15, lineHeight: 18 }}>
+                  {item.label}
+                </Text>
+                <Text className="font-inter" style={{ color: '#858299', fontSize: 11, lineHeight: 14, marginTop: 2 }}>
+                  {item.date}
+                </Text>
+              </View>
+              <View
+                style={{
+                  backgroundColor:
+                    item.tone === 'green' ? '#DDFBE7' : item.tone === 'amber' ? '#FFF2DD' : '#FFE1E1',
+                  borderRadius: 999,
+                  paddingHorizontal: 12,
+                  paddingVertical: 7,
+                }}
+              >
+                <Text
+                  className="font-inter"
+                  style={{
+                    color: item.tone === 'green' ? '#22C55E' : item.tone === 'amber' ? '#F59E0B' : '#EF4444',
+                    fontSize: 12,
+                    lineHeight: 16,
+                  }}
+                >
+                  {item.status}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
       </ScrollView>
+
+      <Pressable
+        onPress={() => router.push('/id-type')}
+        style={{
+          alignItems: 'center',
+          backgroundColor: '#09054F',
+          borderRadius: 18,
+          bottom: 112,
+          height: 56,
+          justifyContent: 'center',
+          position: 'absolute',
+          right: 18,
+          width: 56,
+        }}
+      >
+        <IconSymbol color="#FFFFFF" name="qrcode.viewfinder" size={30} />
+      </Pressable>
     </Screen>
   );
 }

@@ -30,22 +30,29 @@ export default function TabLayout() {
       <Tabs.Screen
         name="credentials"
         options={{
-          title: 'Credentials',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.text.rectangle.fill" color={color} />,
+          title: 'Vault',
+          tabBarIcon: ({ color }) => <IconSymbol size={24} name="person.text.rectangle.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          title: 'Share',
+          tabBarIcon: ({ color }) => <IconSymbol size={24} name="arrow.up.right" color={color} />,
         }}
       />
       <Tabs.Screen
         name="history"
         options={{
-          title: 'History',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="clock.fill" color={color} />,
+          title: 'Privacy',
+          tabBarIcon: ({ color }) => <IconSymbol size={24} name="shield.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={24} name="gearshape.fill" color={color} />,
         }}
       />
     </Tabs>

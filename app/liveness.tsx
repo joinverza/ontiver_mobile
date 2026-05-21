@@ -1,90 +1,342 @@
-import React, { useEffect } from 'react';
-import { View, Text, Pressable, MotiView, MotiText, AnimatedView } from '@/src/tw';
-import { Screen } from '@/components/screen';
-import { useSharedValue, useAnimatedStyle, withTiming, Easing, withRepeat } from 'react-native-reanimated';
+import React from 'react';
 import { useRouter } from 'expo-router';
+import {
+  AUTH_COLORS,
+  AuthScreenFrame,
+  DarkFlowDecorations,
+  FlowProgress,
+  PrimaryAuthButton,
+  ProcessingRings,
+  SecondaryAuthButton,
+  SideDecorations,
+  StatusBanner,
+  VaultaShieldArt,
+} from '@/components/auth/auth-ui';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Image } from 'expo-image';
+import { Pressable, Text, View } from '@/src/tw';
 
-const STEPS = [
-  { text: 'Look straight ahead', icon: 'face.dashed' },
-  { text: 'Turn slightly left', icon: 'arrow.turn.down.left' },
-  { text: 'Turn slightly right', icon: 'arrow.turn.down.right' },
-  { text: 'Smile!', icon: 'face.smiling' },
-  { text: 'Analyzing...', icon: 'sparkles' },
-];
+type SelfieState =
+  | 'intro'
+  | 'straight'
+  | 'left'
+  | 'right'
+  | 'smile'
+  | 'smile-light'
+  | 'smile-face'
+  | 'processing'
+  | 'processing-delay'
+  | 'success'
+  | 'failure';
 
 export default function LivenessScreen() {
   const router = useRouter();
-  const [step, setStep] = React.useState(0);
-  const progress = useSharedValue(0);
+  const [state, setState] = React.useState<SelfieState>('intro');
 
-  const ringStyle = useAnimatedStyle(() => ({
-    borderWidth: 8,
-    borderColor: '#6C3FF5',
-    borderRadius: 150,
-    width: 280,
-    height: 280,
-    position: 'absolute' as const,
-    borderTopColor: 'transparent',
-    borderRightColor: step === 4 ? '#6C3FF5' : 'transparent',
-    borderBottomColor: step === 4 ? '#6C3FF5' : 'transparent',
-    transform: [{ rotate: `${progress.value * 360}deg` }],
-  }));
-
-  useEffect(() => {
-    if (step < 4) {
-      const timer = setTimeout(() => setStep(s => s + 1), 3000);
-      return () => clearTimeout(timer);
-    } else {
-      progress.value = withRepeat(withTiming(1, { duration: 1500, easing: Easing.linear }), -1, false);
-      const timer = setTimeout(() => router.replace('/(tabs)'), 4000);
-      return () => clearTimeout(timer);
+  React.useEffect(() => {
+    if (state !== 'processing') {
+      return;
     }
-  }, [progress, router, step]);
+    const timer = setTimeout(() => setState('processing-delay'), 2200);
+    return () => clearTimeout(timer);
+  }, [state]);
+
+  if (state === 'success') {
+    return (
+      <AuthScreenFrame title="">
+        <View style={{ flex: 1, overflow: 'hidden' }}>
+          <SideDecorations />
+          <View
+            style={{
+              alignItems: 'center',
+              flex: 1,
+              justifyContent: 'center',
+              paddingHorizontal: 24,
+            }}
+          >
+            <VaultaShieldArt size={132} variant="check" />
+            <Text
+              className="font-inter font-extrabold text-center"
+              style={{ color: AUTH_COLORS.navy, fontSize: 28, lineHeight: 32, marginTop: 20 }}
+            >
+              Identity Verified!
+            </Text>
+            <Text
+              className="font-inter text-center"
+              style={{ color: '#50506E', fontSize: 15, lineHeight: 21, marginTop: 14 }}
+            >
+              Your Vaulta credential is ready. You can now share your verified identity with any
+              app or service.
+            </Text>
+            <View style={{ marginTop: 28, width: '100%' }}>
+              <PrimaryAuthButton label="Go to My Vault" onPress={() => router.replace('/(tabs)?mode=full')} />
+            </View>
+            <Text
+              className="font-inter text-center"
+              style={{ color: AUTH_COLORS.ink, fontSize: 15, lineHeight: 20, marginTop: 18 }}
+            >
+              Share My Identity
+            </Text>
+          </View>
+        </View>
+      </AuthScreenFrame>
+    );
+  }
+
+  if (state === 'failure') {
+    return (
+      <AuthScreenFrame title="">
+        <View style={{ flex: 1, overflow: 'hidden' }}>
+          <SideDecorations />
+          <View
+            style={{
+              alignItems: 'center',
+              flex: 1,
+              justifyContent: 'center',
+              paddingHorizontal: 24,
+            }}
+          >
+            <IconSymbol color={AUTH_COLORS.error} name="xmark.circle.fill" size={112} />
+            <Text
+              className="font-inter font-extrabold text-center"
+              style={{ color: AUTH_COLORS.error, fontSize: 28, lineHeight: 32, marginTop: 20 }}
+            >
+              Verification Unsuccessful
+            </Text>
+            <Text
+              className="font-inter text-center"
+              style={{ color: '#50506E', fontSize: 15, lineHeight: 21, marginTop: 14 }}
+            >
+              Your ID photo was too blurry. Please retake in good lighting on a flat surface.
+            </Text>
+            <View style={{ marginTop: 28, width: '100%' }}>
+              <PrimaryAuthButton label="Try Again" onPress={() => setState('intro')} />
+            </View>
+            <Text
+              className="font-inter text-center"
+              style={{ color: AUTH_COLORS.ink, fontSize: 15, lineHeight: 20, marginTop: 18 }}
+            >
+              Having trouble? Contact Support
+            </Text>
+          </View>
+        </View>
+      </AuthScreenFrame>
+    );
+  }
+
+  if (state === 'processing' || state === 'processing-delay') {
+    return (
+      <AuthScreenFrame title="">
+        <View style={{ backgroundColor: AUTH_COLORS.navy, flex: 1, overflow: 'hidden' }}>
+          <DarkFlowDecorations />
+          <View
+            style={{
+              alignItems: 'center',
+              flex: 1,
+              justifyContent: 'center',
+              paddingHorizontal: 24,
+            }}
+          >
+            <ProcessingRings />
+            <Text
+              className="font-inter font-extrabold text-center"
+              style={{ color: '#FFFFFF', fontSize: 20, lineHeight: 24, marginTop: 26 }}
+            >
+              {state === 'processing' ? 'Verifying your identity...' : 'Taking longer than usual...'}
+            </Text>
+            <Text
+              className="font-inter text-center"
+              style={{ color: '#C8C6E4', fontSize: 14, lineHeight: 20, marginTop: 12 }}
+            >
+              {state === 'processing'
+                ? 'This usually takes 10-30 seconds. Please don’t close the app.'
+                : 'Our team is on it. We’ll notify you when it’s ready.'}
+            </Text>
+            {state === 'processing-delay' ? (
+              <View style={{ marginTop: 34, width: '100%' }}>
+                <SecondaryAuthButton
+                  label="Go to Dashboard"
+                  onPress={() => router.replace('/(tabs)?mode=full')}
+                />
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </AuthScreenFrame>
+    );
+  }
+
+  if (state === 'intro') {
+    return (
+      <AuthScreenFrame title="">
+        <View style={{ backgroundColor: AUTH_COLORS.navy, flex: 1, overflow: 'hidden' }}>
+          <DarkFlowDecorations />
+          <View style={{ paddingHorizontal: 24, paddingTop: 16 }}>
+            <Pressable onPress={() => router.back()}>
+              <IconSymbol color="#FFFFFF" name="chevron.left" size={20} />
+            </Pressable>
+            <View style={{ alignItems: 'center', marginTop: 140 }}>
+              <Text
+                className="font-inter font-extrabold text-center"
+                style={{ color: '#FFFFFF', fontSize: 22, lineHeight: 30 }}
+              >
+                We&apos;ll take a selfie to{'\n'}match your ID
+              </Text>
+              <View style={{ marginTop: 26, width: '100%' }}>
+                <SecondaryAuthButton label="Ready" onPress={() => setState('straight')} />
+              </View>
+            </View>
+          </View>
+        </View>
+      </AuthScreenFrame>
+    );
+  }
+
+  const banner =
+    state === 'smile-light'
+      ? 'Move to better light'
+      : state === 'smile-face'
+        ? "We can't see your face clearly. Make sure your face is inside the oval and you're facing forward."
+        : '';
 
   return (
-    <Screen className="bg-slate-900 flex-1">
-      <View className="px-6 pt-12 flex-row items-center mb-10">
-        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center bg-white/10 rounded-full">
-          <IconSymbol name="chevron.left" size={20} color="white" />
-        </Pressable>
-        <View className="flex-1 ml-4">
-          <View className="h-1.5 bg-white/20 rounded-full w-full overflow-hidden flex-row">
-            <View className="bg-brand-violet w-full h-full" />
+    <AuthScreenFrame title="">
+      <View style={{ backgroundColor: AUTH_COLORS.navy, flex: 1, overflow: 'hidden' }}>
+        <DarkFlowDecorations />
+        <View style={{ paddingHorizontal: 24, paddingTop: 16 }}>
+          <View style={{ alignItems: 'center', flexDirection: 'row', gap: 18 }}>
+            <Pressable onPress={() => router.back()}>
+              <IconSymbol color="#FFFFFF" name="chevron.left" size={20} />
+            </Pressable>
+            <FlowProgress current={state === 'straight' ? 1 : state === 'left' ? 2 : state === 'right' ? 3 : 4} light />
           </View>
-        </View>
-      </View>
 
-      <View className="items-center px-6 mb-8">
-        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-white text-2xl font-bold mb-2 text-center">
-          Liveness Check
-        </MotiText>
-        <Text className="text-white/60 text-center">Follow the instructions to verify it&apos;s you.</Text>
-      </View>
+          {banner ? (
+            <View style={{ marginTop: 18 }}>
+              <StatusBanner
+                message={banner}
+                onClose={() => setState('smile')}
+                tone="warning"
+              />
+            </View>
+          ) : null}
 
-      <View className="flex-1 items-center justify-center">
-        <View className="w-[280px] h-[280px] items-center justify-center relative">
-          <AnimatedView style={ringStyle} />
-          <View className="w-[260px] h-[260px] rounded-full overflow-hidden bg-slate-800 border-4 border-white/10 items-center justify-center">
-            {step === 4 ? (
-              <MotiView from={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} className="w-full h-full bg-brand-violet items-center justify-center">
-                <IconSymbol name="checkmark.shield.fill" size={80} color="white" />
-              </MotiView>
-            ) : (
-              <View className="items-center justify-center opacity-40">
-                <IconSymbol name="person.fill" size={120} color="white" />
+          <View style={{ alignItems: 'center', marginTop: 24 }}>
+            <Image
+              source={{ uri: 'https://em-content.zobj.net/source/apple/391/person_1f9d1.png' }}
+              style={{ borderRadius: 999, height: 70, width: 70 }}
+            />
+            {(() => {
+              const isSmilePhase =
+                state === 'smile' || state === 'smile-light' || state === 'smile-face';
+
+              return (
+            <View
+              style={{
+                  alignItems: 'center',
+                  backgroundColor: state === 'smile-face' ? '#7F52FF' : '#FFFFFF',
+                  borderColor: isSmilePhase ? '#F1C54B' : '#A6E458',
+                  borderRadius: 999,
+                  borderStyle: 'dotted',
+                  borderWidth: 3,
+                  height: 320,
+                  justifyContent: 'center',
+                  marginTop: 12,
+                  width: 220,
+                }}
+              >
+                {state !== 'smile-face' ? (
+                  <>
+                    <Text
+                      className="font-inter font-extrabold text-center"
+                      style={{ color: AUTH_COLORS.ink, fontSize: 20, lineHeight: 26 }}
+                    >
+                      {state === 'straight'
+                        ? 'Look straight\nahead.'
+                        : state === 'left'
+                          ? 'Turn slightly\nleft'
+                          : state === 'right'
+                            ? 'Turn slightly\nright'
+                            : 'Smile'}
+                    </Text>
+                    {state === 'left' ? (
+                      <IconSymbol color={AUTH_COLORS.navy} name="arrow.left" size={34} />
+                    ) : null}
+                    {state === 'right' ? (
+                      <IconSymbol color={AUTH_COLORS.navy} name="arrow.right" size={34} />
+                    ) : null}
+                    {isSmilePhase ? (
+                      <IconSymbol color={AUTH_COLORS.navy} name="face.smiling" size={38} />
+                    ) : null}
+                  </>
+                ) : null}
               </View>
-            )}
+              );
+            })()}
           </View>
-        </View>
 
-        <MotiView key={`step-${step}`} from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} className="mt-12 items-center">
-          <View className="w-16 h-16 bg-white/10 rounded-full items-center justify-center mb-4">
-            <IconSymbol name={STEPS[step].icon as any} size={32} color={step === 4 ? '#A8E63D' : '#38BBFF'} />
+          <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'center', marginTop: 18 }}>
+            {[0, 1, 2, 3].map((index) => {
+              const active =
+                (state === 'straight' && index === 0) ||
+                (state === 'left' && index <= 1) ||
+                (state === 'right' && index <= 2) ||
+                ((state === 'smile' || state === 'smile-light' || state === 'smile-face') && index <= 3);
+
+              return (
+                <View
+                  key={index}
+                  style={{
+                    backgroundColor: active ? '#FFFFFF' : '#6E67A0',
+                    borderRadius: 999,
+                    height: 10,
+                    marginHorizontal: 4,
+                    width: 10,
+                  }}
+                />
+              );
+            })}
           </View>
-          <Text className="text-white text-xl font-bold">{STEPS[step].text}</Text>
-        </MotiView>
+
+          <Text
+            className="font-inter text-center"
+            style={{ color: '#FFFFFF', fontSize: 12, lineHeight: 16, marginTop: 34 }}
+          >
+            Powered by Qynara
+          </Text>
+
+          <View style={{ marginTop: 18 }}>
+            <PrimaryAuthButton
+              label={
+                state === 'straight'
+                  ? 'Continue'
+                  : state === 'left'
+                    ? 'Continue'
+                    : state === 'right'
+                      ? 'Continue'
+                      : 'Finish'
+              }
+              onPress={() => {
+                if (state === 'straight') setState('left');
+                else if (state === 'left') setState('right');
+                else if (state === 'right') setState('smile');
+                else setState('processing');
+              }}
+            />
+          </View>
+          {state === 'smile' ? (
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+              <SecondaryAuthButton label="Move to better light" onPress={() => setState('smile-light')} />
+              <SecondaryAuthButton label="Face not clear" onPress={() => setState('smile-face')} />
+            </View>
+          ) : null}
+          {(state === 'smile-light' || state === 'smile-face') ? (
+            <View style={{ marginTop: 12 }}>
+              <SecondaryAuthButton label="Looks good now" onPress={() => setState('success')} />
+            </View>
+          ) : null}
+        </View>
       </View>
-    </Screen>
+    </AuthScreenFrame>
   );
 }
