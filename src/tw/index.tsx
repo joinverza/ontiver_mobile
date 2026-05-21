@@ -122,3 +122,28 @@ export const TouchableHighlight = (
   return useCssElement(XXTouchableHighlight, props, { className: "style" });
 };
 TouchableHighlight.displayName = "CSS(TouchableHighlight)";
+
+// CSS-enabled Moti components
+import { MotiView as RNMotiView, MotiText as RNMotiText } from "moti";
+
+export const MotiView = (
+  props: React.ComponentProps<typeof RNMotiView> & { className?: string }
+) => {
+  return useCssElement(RNMotiView, props, { className: "style" });
+};
+MotiView.displayName = "CSS(MotiView)";
+
+export const MotiText = (
+  props: React.ComponentProps<typeof RNMotiText> & { className?: string }
+) => {
+  return useCssElement(RNMotiText, props, { className: "style" });
+};
+MotiText.displayName = "CSS(MotiText)";
+
+// CSS-enabled Animated.View
+export const AnimatedView = (
+  props: React.ComponentProps<typeof Animated.View> & { className?: string }
+) => {
+  return useCssElement(Animated.View, props, { className: "style" });
+};
+AnimatedView.displayName = "CSS(AnimatedView)";

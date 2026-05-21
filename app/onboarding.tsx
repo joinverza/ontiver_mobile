@@ -1,95 +1,78 @@
 import React from 'react';
-import { View, Text, Pressable } from '@/src/tw';
+import { View, Text, Pressable, MotiView, MotiText } from '@/src/tw';
 import { Screen } from '@/components/screen';
-import { MotiView, MotiText } from 'moti';
 import { useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
-const STEPS = [
-  {
-    title: 'Secure Your Future',
-    description: 'Vaulta helps you save and grow your assets with military-grade security.',
-    icon: 'lock.shield.fill',
-    color: '#6C3FF5',
-  },
-  {
-    title: 'Smart Vaults',
-    description: 'Create individual vaults for your goals and track your progress in real-time.',
-    icon: 'briefcase.fill',
-    color: '#00C9D4',
-  },
-  {
-    title: 'Instant Transfers',
-    description: 'Send and receive assets instantly with zero fees between Vaulta users.',
-    icon: 'paperplane.fill',
-    color: '#A8E63D',
-  },
-];
-
 export default function OnboardingScreen() {
-  const [currentStep, setCurrentStep] = React.useState(0);
   const router = useRouter();
 
-  const next = () => {
-    if (currentStep < STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      router.replace('/(tabs)');
-    }
-  };
-
-  const step = STEPS[currentStep];
-
   return (
-    <Screen className="bg-near-black">
-      <View className="flex-1 justify-center px-10">
+    <Screen className="bg-[#F5F6FA] flex-1">
+      <View className="flex-1 justify-center px-6">
         <MotiView
-          key={`icon-${currentStep}`}
-          from={{ opacity: 0, scale: 0.5, rotate: '0deg' }}
-          animate={{ opacity: 1, scale: 1, rotate: '360deg' }}
-          transition={{ type: 'spring' }}
-          className="w-32 h-32 rounded-[40px] items-center justify-center mb-12 self-center"
-          style={{ backgroundColor: `${step.color}20` }}
+          from={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', delay: 100 }}
+          className="items-center justify-center mb-8"
         >
-          <IconSymbol name={step.icon as any} size={64} color={step.color} />
+          <View className="w-24 h-24 bg-blue-100 rounded-full items-center justify-center">
+            <IconSymbol name="shield.fill" size={48} color="#007AFF" />
+          </View>
         </MotiView>
 
         <MotiText
-          key={`title-${currentStep}`}
           from={{ opacity: 0, translateY: 20 }}
           animate={{ opacity: 1, translateY: 0 }}
-          className="text-white font-inter text-4xl font-extrabold text-center mb-4"
+          transition={{ delay: 200 }}
+          className="text-slate-900 font-inter text-3xl font-extrabold text-center mb-4"
         >
-          {step.title}
+          Verify your identity
         </MotiText>
 
         <MotiText
-          key={`desc-${currentStep}`}
           from={{ opacity: 0, translateY: 20 }}
           animate={{ opacity: 1, translateY: 0 }}
-          transition={{ delay: 100 }}
-          className="text-white/60 font-inter text-lg text-center mb-20"
+          transition={{ delay: 300 }}
+          className="text-slate-600 font-inter text-base text-center mb-10"
         >
-          {step.description}
+          To protect your account, we need to verify it's really you.
         </MotiText>
 
-        <View className="flex-row justify-center gap-2 mb-10">
-          {STEPS.map((_, i) => (
-            <View
-              key={i}
-              className={`h-2 rounded-full ${i === currentStep ? 'w-8 bg-brand-violet' : 'w-2 bg-white/20'}`}
-            />
+        <View className="gap-6 mb-12 px-2">
+          {[
+            { title: 'Government-issued ID', icon: 'person.text.rectangle' },
+            { title: 'Good lighting', icon: 'sun.max.fill' },
+            { title: 'About 5 minutes', icon: 'clock.fill' },
+          ].map((item, index) => (
+            <MotiView
+              key={index}
+              from={{ opacity: 0, translateX: -20 }}
+              animate={{ opacity: 1, translateX: 0 }}
+              transition={{ delay: 400 + index * 100 }}
+              className="flex-row items-center gap-4"
+            >
+              <View className="w-10 h-10 bg-slate-200 rounded-full items-center justify-center">
+                <IconSymbol name={item.icon as any} size={20} color="#0F172A" />
+              </View>
+              <Text className="text-slate-900 text-lg font-medium">{item.title}</Text>
+            </MotiView>
           ))}
         </View>
 
-        <Pressable
-          onPress={next}
-          className="bg-brand-violet py-5 rounded-3xl items-center shadow-xl shadow-brand-violet/20"
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ delay: 800 }}
+          className="mt-auto mb-8"
         >
-          <Text className="text-white font-inter font-bold text-lg">
-            {currentStep === STEPS.length - 1 ? 'Get Started' : 'Next Step'}
-          </Text>
-        </Pressable>
+          <Pressable
+            onPress={() => router.push('/id-type')}
+            className="bg-slate-900 py-4 rounded-full items-center"
+          >
+            <Text className="text-white font-inter font-bold text-lg">Let's Begin</Text>
+          </Pressable>
+        </MotiView>
       </View>
     </Screen>
   );

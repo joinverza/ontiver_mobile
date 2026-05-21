@@ -18,9 +18,9 @@ export function Screen({
   const Content = safe ? SafeAreaView : View;
 
   return (
-    <View className={`flex-1 bg-near-black ${className}`} {...props}>
-      <StatusBar style="light" backgroundColor={statusBarColor} />
-      <Content className="flex-1">{children}</Content>
+    <View className={`flex-1 ${className}`} {...props}>
+      <StatusBar style="auto" backgroundColor={statusBarColor} />
+      <Content style={{ flex: 1 }}>{children}</Content>
     </View>
   );
 }

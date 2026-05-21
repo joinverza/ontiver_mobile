@@ -4,6 +4,14 @@ import LottieView from 'lottie-react-native';
 import { MotiView } from 'moti';
 
 export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
+  React.useEffect(() => {
+    // Guarantee that onFinish is called even if Lottie fails to load the remote URL
+    const timer = setTimeout(() => {
+      onFinish();
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [onFinish]);
+
   return (
     <View className="flex-1 bg-near-black items-center justify-center">
       <MotiView

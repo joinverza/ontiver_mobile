@@ -13,12 +13,34 @@ type IconSymbolName = keyof typeof MAPPING;
  * - see Material Icons in the [Icons Directory](https://icons.expo.fyi).
  * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
  */
-const MAPPING = {
+const MAPPING: Record<string, ComponentProps<typeof MaterialIcons>['name']> = {
   'house.fill': 'home',
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
-} as IconMapping;
+  'chevron.left': 'chevron-left',
+  'bell.fill': 'notifications',
+  'exclamationmark.circle.fill': 'error',
+  'exclamationmark.triangle.fill': 'warning',
+  'person.crop.rectangle.fill': 'badge',
+  'person.crop.rectangle': 'badge',
+  'checkmark.seal.fill': 'verified',
+  'plus.circle.fill': 'add-circle',
+  'shield.fill': 'security',
+  'person.text.rectangle': 'badge',
+  'sun.max.fill': 'wb-sunny',
+  'clock.fill': 'schedule',
+  'airplane': 'flight',
+  'car.fill': 'directions-car',
+  'pencil': 'edit',
+  'face.dashed': 'face',
+  'arrow.turn.down.left': 'undo',
+  'arrow.turn.down.right': 'redo',
+  'face.smiling': 'sentiment-satisfied',
+  'sparkles': 'auto-awesome',
+  'checkmark.shield.fill': 'verified-user',
+  'person.fill': 'person',
+};
 
 /**
  * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.
