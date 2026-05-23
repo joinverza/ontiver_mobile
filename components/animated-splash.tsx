@@ -2,13 +2,15 @@ import React from 'react';
 import { View, Text } from '@/src/tw';
 import { MotiView } from 'moti';
 import Svg, { Path } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
+  const insets = useSafeAreaInsets();
+
   React.useEffect(() => {
-    // Navigate after 3 seconds
     const timer = setTimeout(() => {
       onFinish();
-    }, 3000);
+    }, 1800);
     return () => clearTimeout(timer);
   }, [onFinish]);
 
@@ -35,7 +37,8 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
         from={{ opacity: 0, translateY: 10 }}
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ delay: 800, type: 'timing', duration: 800 }}
-        className="absolute bottom-12 w-full items-center"
+        className="absolute w-full items-center"
+        style={{ bottom: Math.max(insets.bottom, 16) + 20 }}
       >
         <Text className="text-white font-inter text-xs font-bold tracking-wide">
           Powered by Qynara

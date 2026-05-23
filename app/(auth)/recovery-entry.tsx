@@ -2,10 +2,10 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import {
   AUTH_COLORS,
-  AuthScreenFrame,
   PrimaryAuthButton,
-  SideDecorations,
   StatusBanner,
+  AuthScreenFrame,
+  SideDecorations,
 } from '@/components/auth/auth-ui';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Pressable, Text, View } from '@/src/tw';
@@ -14,13 +14,15 @@ type RecoveryMethod = 'email' | 'phrase' | null;
 
 export default function RecoveryEntryScreen() {
   const router = useRouter();
-  const [method, setMethod] = React.useState<RecoveryMethod>(null);
+  const insets = useSafeAreaInsets();
+  const [method, setMethod] = React.useState<RecoveryMethod>('email');
 
   return (
     <AuthScreenFrame showBackButton title="">
       <View style={{ flex: 1, overflow: 'hidden' }}>
         <SideDecorations />
-        <View style={{ paddingHorizontal: 24, paddingTop: 12 }}>
+
+        <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 12, paddingBottom: 20 }}>
           <Text
             className="font-inter font-extrabold"
             style={{ color: AUTH_COLORS.ink, fontSize: 20, lineHeight: 26 }}
@@ -34,7 +36,7 @@ export default function RecoveryEntryScreen() {
             Choose a recovery method below.
           </Text>
 
-          <View style={{ gap: 8, marginTop: 18 }}>
+          <View style={{ gap: 8, marginTop: 24 }}>
             <RecoveryOption
               active={method === 'email'}
               description="We'll send a code to your registered email."
@@ -58,7 +60,7 @@ export default function RecoveryEntryScreen() {
             />
           </View>
 
-          <View style={{ marginTop: 'auto', paddingTop: 40 }}>
+          <View style={{ marginTop: 'auto', paddingTop: 36 }}>
             <PrimaryAuthButton
               disabled={!method}
               label="Continue"
@@ -118,7 +120,9 @@ function RecoveryOption({
             width: 18,
           }}
         >
-          {active ? <View style={{ backgroundColor: AUTH_COLORS.navy, borderRadius: 999, height: 8, width: 8 }} /> : null}
+          {active ? (
+            <View style={{ backgroundColor: AUTH_COLORS.navy, borderRadius: 999, height: 8, width: 8 }} />
+          ) : null}
         </View>
       </View>
       <Text

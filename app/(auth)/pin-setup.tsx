@@ -1,6 +1,11 @@
 import React from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AUTH_COLORS, DigitPad, PinCells } from '@/components/auth/auth-ui';
+import {
+  AUTH_COLORS,
+  DigitPad,
+  PinCells,
+  WhiteSheetCard,
+} from '@/components/auth/auth-ui';
 import { Screen } from '@/components/screen';
 import { Text, View } from '@/src/tw';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -46,16 +51,13 @@ export default function PinSetupScreen() {
 
     if (activeField === 'pin') {
       setPin(sanitized);
-
       if (hasMismatch) {
         setHasMismatch(false);
       }
-
       return;
     }
 
     setConfirmPin(sanitized);
-
     if (hasMismatch) {
       setHasMismatch(false);
     }
@@ -65,75 +67,77 @@ export default function PinSetupScreen() {
 
   return (
     <Screen className="bg-white" safe={false}>
-      <View
-        style={{
-          flex: 1,
-          paddingBottom: Math.max(insets.bottom, 24) + 24,
-          paddingHorizontal: 24,
-          paddingTop: insets.top + 18,
-        }}
-      >
-        <Text
-          className="font-inter font-extrabold"
-          style={{ color: AUTH_COLORS.ink, fontSize: 22, lineHeight: 28, marginTop: 44 }}
+      <WhiteSheetCard>
+        <View
+          style={{
+            flex: 1,
+            paddingBottom: Math.max(insets.bottom, 24),
+            paddingHorizontal: 20,
+            paddingTop: insets.top + 26,
+          }}
         >
-          {title === 'reset' ? 'Set a New PIN' : 'Create Your 6-Digit PIN'}
-        </Text>
-        <Text
-          className="font-inter"
-          style={{ color: '#4D4A68', fontSize: 16, lineHeight: 22, marginTop: 8 }}
-        >
-          This PIN is your backup access method. Keep it private and memorable.
-        </Text>
+          <Text
+            className="font-inter font-extrabold"
+            style={{ color: AUTH_COLORS.ink, fontSize: 22, lineHeight: 28 }}
+          >
+            {title === 'reset' ? 'Set a New PIN' : 'Create Your 6-Digit PIN'}
+          </Text>
+          <Text
+            className="font-inter"
+            style={{ color: '#4D4A68', fontSize: 16, lineHeight: 22, marginTop: 8 }}
+          >
+            This PIN is your backup access method. Keep it private and memorable.
+          </Text>
 
-        <View style={{ gap: 24, marginTop: 26 }}>
-          <View>
-            <Text
-              className="font-inter"
-              style={{ color: AUTH_COLORS.ink, fontSize: 16, lineHeight: 22, marginBottom: 12 }}
-            >
-              Input Pin
-            </Text>
-            <PinCells onPress={() => setActiveField('pin')} value={pin} />
-          </View>
-
-          <View>
-            <Text
-              className="font-inter"
-              style={{ color: AUTH_COLORS.ink, fontSize: 16, lineHeight: 22, marginBottom: 12 }}
-            >
-              Confirm Pin
-            </Text>
-            <PinCells
-              error={hasMismatch}
-              onPress={() => setActiveField('confirm')}
-              value={confirmPin}
-            />
-            {hasMismatch ? (
+          <View style={{ gap: 28, marginTop: 34 }}>
+            <View>
               <Text
-                selectable
                 className="font-inter"
-                style={{
-                  color: AUTH_COLORS.error,
-                  fontSize: 12,
-                  lineHeight: 16,
-                  marginTop: 8,
-                }}
+                style={{ color: AUTH_COLORS.ink, fontSize: 16, lineHeight: 22, marginBottom: 12 }}
               >
-                PINs don&apos;t match. Try again.
+                Input Pin
               </Text>
-            ) : null}
+              <PinCells onPress={() => setActiveField('pin')} value={pin} />
+            </View>
+
+            <View>
+              <Text
+                className="font-inter"
+                style={{ color: AUTH_COLORS.ink, fontSize: 16, lineHeight: 22, marginBottom: 12 }}
+              >
+                Confirm Pin
+              </Text>
+              <PinCells
+                error={hasMismatch}
+                onPress={() => setActiveField('confirm')}
+                value={confirmPin}
+              />
+              {hasMismatch ? (
+                <Text
+                  selectable
+                  className="font-inter"
+                  style={{
+                    color: AUTH_COLORS.error,
+                    fontSize: 12,
+                    lineHeight: 16,
+                    marginTop: 8,
+                  }}
+                >
+                  PINs don&apos;t match. Try again.
+                </Text>
+              ) : null}
+            </View>
+          </View>
+
+          <View style={{ marginTop: 'auto' }}>
+            <DigitPad
+              onBackspace={() => handleChange(inputValue.slice(0, -1))}
+              onDigit={(digit) => handleChange(`${inputValue}${digit}`)}
+              onLeftKey={() => {}}
+            />
           </View>
         </View>
-
-        <View style={{ marginTop: 'auto' }}>
-          <DigitPad
-            onBackspace={() => handleChange(inputValue.slice(0, -1))}
-            onDigit={(digit) => handleChange(`${inputValue}${digit}`)}
-            onLeftKey={() => {}}
-          />
-        </View>
-      </View>
+      </WhiteSheetCard>
     </Screen>
   );
 }

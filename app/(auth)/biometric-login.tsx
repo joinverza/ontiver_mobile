@@ -1,22 +1,23 @@
-import React from 'react';
-import { useRouter } from 'expo-router';
 import {
-  AuthIllustration,
-  AuthScreenFrame,
-  PrimaryAuthButton,
-  SideDecorations,
+    AuthIllustration,
+    CurvedAccent,
+    PrimaryAuthButton,
+    WhiteSheetCard,
 } from '@/components/auth/auth-ui';
+import { Screen } from '@/components/screen';
 import { Pressable, Text, View } from '@/src/tw';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function BiometricLoginScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
-    <AuthScreenFrame title="">
-      <View style={{ flex: 1, overflow: 'hidden' }}>
-        <SideDecorations />
-
-        <View style={{ paddingHorizontal: 14, paddingTop: 16 }}>
+    <Screen className="bg-[#09054F]" safe={false}>
+      <View style={{ flex: 1 }}>
+        <View style={{ paddingHorizontal: 20, paddingTop: insets.top + 26 }}>
           <Text
             className="font-inter font-extrabold"
             style={{ color: '#FFFFFF', fontSize: 20, lineHeight: 24 }}
@@ -31,47 +32,55 @@ export default function BiometricLoginScreen() {
           </Text>
           <Text
             className="font-inter"
-            style={{ color: '#F4F3FF', fontSize: 16, lineHeight: 21, marginTop: 8, maxWidth: 220 }}
+            style={{ color: '#F4F3FF', fontSize: 16, lineHeight: 21, marginTop: 8, maxWidth: 230 }}
           >
             Use your biometric to access your vault.
           </Text>
         </View>
 
-        <View
+        <WhiteSheetCard
           style={{
-            alignItems: 'center',
-            backgroundColor: '#FFFFFF',
-            borderTopLeftRadius: 34,
-            borderTopRightRadius: 34,
-            flex: 1,
             marginTop: 28,
-            paddingHorizontal: 24,
-            paddingTop: 46,
+            overflow: 'hidden',
           }}
         >
-          <AuthIllustration
-            height={210}
-            source={require('@/assets/images/svg8.svg')}
-            width={210}
-          />
+          <CurvedAccent position="top-left" />
+          <CurvedAccent position="top-right" />
+          <CurvedAccent position="bottom-left" />
+          <CurvedAccent position="bottom-right" />
 
-          <View style={{ marginTop: 34, width: '100%' }}>
-            <PrimaryAuthButton
-              label="Use PIN instead"
-              onPress={() => router.push('/pin-login')}
+          <View
+            style={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              flex: 1,
+              paddingHorizontal: 24,
+            }}
+          >
+            <AuthIllustration
+              height={210}
+              source={require('@/assets/images/svg8.svg')}
+              width={210}
             />
-          </View>
 
-          <Pressable onPress={() => router.push('/recovery-entry')} style={{ marginTop: 28 }}>
-            <Text
-              className="font-inter"
-              style={{ color: '#A7A4BE', fontSize: 15, lineHeight: 20 }}
-            >
-              Forgot PIN or lost device?
-            </Text>
-          </Pressable>
-        </View>
+            <View style={{ marginTop: 40, width: '100%' }}>
+              <PrimaryAuthButton
+                label="Use PIN instead"
+                onPress={() => router.push('/pin-login')}
+              />
+            </View>
+
+            <Pressable onPress={() => router.push('/recovery-entry')} style={{ marginTop: 30 }}>
+              <Text
+                className="font-inter"
+                style={{ color: '#B1AFCA', fontSize: 15, lineHeight: 20 }}
+              >
+                Forgot PIN or lost device?
+              </Text>
+            </Pressable>
+          </View>
+        </WhiteSheetCard>
       </View>
-    </AuthScreenFrame>
+    </Screen>
   );
 }

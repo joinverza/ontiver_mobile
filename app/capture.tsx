@@ -1,23 +1,32 @@
 import React from 'react';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useRouter } from 'expo-router';
 import {
   AUTH_COLORS,
-  AuthScreenFrame,
   DarkFlowDecorations,
   FlowProgress,
   StatusBanner,
 } from '@/components/auth/auth-ui';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Screen } from '@/components/screen';
 import { Image } from 'expo-image';
 import { Pressable, Text, View } from '@/src/tw';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type CaptureState = 'front' | 'blur' | 'glare' | 'dark' | 'front-ok' | 'back';
+type CaptureState =
+  | 'front'
+  | 'blur'
+  | 'glare'
+  | 'dark'
+  | 'front-ok'
+  | 'back'
+  | 'back-ok';
 
-const SAMPLE_IMAGE =
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&h=420&fit=crop';
+const FRONT_PREVIEW = require('@/assets/images/Group 2684.svg');
+const BACK_PREVIEW = require('@/assets/images/Group 2684 (1).svg');
 
 export default function DocumentCaptureScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [state, setState] = React.useState<CaptureState>('front');
 
   const bannerMessage =
@@ -29,187 +38,187 @@ export default function DocumentCaptureScreen() {
           ? 'Too dark - find better lighting.'
           : '';
 
+  const isErrorState = state === 'blur' || state === 'glare' || state === 'dark';
+  const isPreviewState = state !== 'front' && state !== 'back';
+  const isBackStep = state === 'back' || state === 'back-ok';
+  const previewSource = state === 'back-ok' ? BACK_PREVIEW : FRONT_PREVIEW;
+
   return (
-    <AuthScreenFrame title="">
+    <Screen className="bg-[#09054F]" safe={false}>
       <View style={{ backgroundColor: AUTH_COLORS.navy, flex: 1, overflow: 'hidden' }}>
         <DarkFlowDecorations />
-        <View style={{ paddingHorizontal: 18, paddingTop: 16 }}>
-          <View style={{ alignItems: 'center', flexDirection: 'row', gap: 18 }}>
-            <Pressable onPress={() => router.back()}>
-              <IconSymbol color="#FFFFFF" name="chevron.left" size={20} />
+
+        <View
+          style={{
+            flex: 1,
+            paddingTop: insets.top + 10,
+            paddingBottom: Math.max(insets.bottom, 20) + 4,
+            paddingHorizontal: 16,
+          }}
+        >
+          <View style={{ alignItems: 'center', flexDirection: 'row' }}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.back()}
+              style={{ height: 40, justifyContent: 'center', width: 40 }}
+            >
+              <MaterialCommunityIcons color="#FFFFFF" name="arrow-left" size={24} />
             </Pressable>
-            <FlowProgress current={2} light />
+
+            <View style={{ alignItems: 'center', flex: 1, marginRight: 40 }}>
+              <FlowProgress current={2} light />
+            </View>
           </View>
 
-          {(state === 'blur' || state === 'glare' || state === 'dark') ? (
-            <View style={{ marginTop: 18 }}>
-              <StatusBanner
-                message={bannerMessage}
-                onClose={() => setState('front')}
-                tone="error"
-              />
+          {isErrorState ? (
+            <View style={{ marginTop: 18, paddingLeft: 160 }}>
+              <StatusBanner message={bannerMessage} onClose={() => setState('front')} tone="error" />
             </View>
           ) : null}
 
           <Text
             className="font-inter text-center"
-            style={{ color: '#FFFFFF', fontSize: 15, lineHeight: 20, marginTop: 32 }}
+            style={{ color: '#FFFFFF', fontSize: 15, lineHeight: 22, marginTop: isErrorState ? 18 : 44 }}
           >
-            {state === 'back'
-              ? 'Now flip your ID and capture the back.'
+            {isBackStep
+              ? 'Position back of ID inside the frame'
               : 'Position front of ID inside the frame'}
           </Text>
 
-          <View style={{ alignItems: 'center', marginTop: 26 }}>
-            {state === 'front' || state === 'back' ? (
-              <FrameCard />
-            ) : (
-              <CapturedCard />
-            )}
-          </View>
+          <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center', paddingBottom: 12 }}>
+            <CaptureCard previewSource={isPreviewState ? previewSource : null} />
 
-          <View
-            style={{
-              alignItems: 'center',
-              flexDirection: 'row',
-              justifyContent: 'center',
-              marginTop: 28,
-            }}
-          >
-            {state === 'front' || state === 'back' ? (
-              <Pressable
-                onPress={() => {
-                  if (state === 'front') {
-                    setState('blur');
-                  } else {
-                    router.push('/verify-info');
-                  }
-                }}
-                style={{
-                  alignItems: 'center',
-                  backgroundColor: '#FFFFFF',
-                  borderRadius: 999,
-                  height: 56,
-                  justifyContent: 'center',
-                  width: 56,
-                }}
-              >
-                <View
-                  style={{
-                    backgroundColor: AUTH_COLORS.navy,
-                    borderRadius: 999,
-                    height: 20,
-                    width: 20,
-                  }}
+            <View style={{ marginTop: 34 }}>
+              {state === 'front' || state === 'back' ? (
+                <CaptureShutter
+                  onPress={() => setState(state === 'front' ? 'blur' : 'back-ok')}
                 />
-              </Pressable>
-            ) : (
-              <View style={{ alignItems: 'center', flexDirection: 'row', gap: 36 }}>
-                <ActionCircle
-                  icon="arrow.uturn.left"
-                  onPress={() => {
-                    if (state === 'blur') setState('glare');
-                    else if (state === 'glare') setState('dark');
-                    else if (state === 'dark') setState('front-ok');
-                    else setState('front');
-                  }}
-                />
-                <ActionCircle
-                  icon="checkmark"
-                  onPress={() => {
-                    if (state === 'front-ok') {
+              ) : (
+                <View style={{ alignItems: 'center', flexDirection: 'row', gap: 44 }}>
+                  <ActionCircle
+                    icon="autorenew"
+                    onPress={() => {
+                      if (state === 'blur') setState('glare');
+                      else if (state === 'glare') setState('dark');
+                      else if (state === 'dark') setState('front-ok');
+                      else if (state === 'front-ok') setState('front');
+                      else setState('back');
+                    }}
+                  />
+                  <ActionCircle
+                    icon="check"
+                    onPress={() => {
+                      if (state === 'back-ok') {
+                        router.push('/verify-info');
+                        return;
+                      }
+
                       setState('back');
-                    } else {
-                      router.push('/verify-info');
-                    }
-                  }}
-                />
-              </View>
-            )}
-          </View>
+                    }}
+                  />
+                </View>
+              )}
+            </View>
 
-          <Text
-            className="font-inter text-center"
-            style={{ color: '#FFFFFF', fontSize: 15, lineHeight: 20, marginTop: 28 }}
-          >
-            Make sure to have:
-          </Text>
-          <Text
-            className="font-inter text-center"
-            style={{ color: '#FFFFFF', fontSize: 14, lineHeight: 20, marginTop: 4 }}
-          >
-            Good lighting, Flat surface and No glare
-          </Text>
+            <Text
+              className="font-inter text-center"
+              style={{ color: '#FFFFFF', fontSize: 16, lineHeight: 20, marginTop: 32 }}
+            >
+              Make sure to have:
+            </Text>
+            <Text
+              className="font-inter text-center"
+              style={{ color: '#FFFFFF', fontSize: 15, lineHeight: 22, marginTop: 8 }}
+            >
+              Good lighting, Flat surface and No glare
+            </Text>
+          </View>
         </View>
       </View>
-    </AuthScreenFrame>
+    </Screen>
   );
 }
 
-function FrameCard() {
+function CaptureCard({ previewSource }: { previewSource: number | null }) {
   return (
     <View
       style={{
-        borderRadius: 22,
-        height: 270,
-        overflow: 'hidden',
-        width: 230,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 360,
+        width: '100%',
+      }}
+    >
+      <View
+        style={{
+          backgroundColor: previewSource ? '#DAD8E8' : '#FFFFFF',
+          borderCurve: 'continuous',
+          borderRadius: 26,
+          height: 330,
+          overflow: 'hidden',
+          width: 260,
+        }}
+      >
+        {previewSource ? (
+          <Image contentFit="cover" source={previewSource} style={{ flex: 1 }} />
+        ) : null}
+        <Corner position="top-left" />
+        <Corner position="top-right" />
+        <Corner position="bottom-left" />
+        <Corner position="bottom-right" />
+      </View>
+    </View>
+  );
+}
+
+function CaptureShutter({ onPress }: { onPress: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={{
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 999,
+        height: 74,
+        justifyContent: 'center',
+        width: 74,
       }}
     >
       <View
         style={{
           backgroundColor: '#FFFFFF',
-          borderRadius: 22,
-          flex: 1,
+          borderColor: AUTH_COLORS.navy,
+          borderRadius: 999,
+          borderWidth: 8,
+          height: 32,
+          width: 32,
         }}
       />
-      <Corner position="top-left" />
-      <Corner position="top-right" />
-      <Corner position="bottom-left" />
-      <Corner position="bottom-right" />
-    </View>
-  );
-}
-
-function CapturedCard() {
-  return (
-    <View
-      style={{
-        borderRadius: 22,
-        height: 270,
-        overflow: 'hidden',
-        width: 230,
-      }}
-    >
-      <Image contentFit="cover" source={{ uri: SAMPLE_IMAGE }} style={{ flex: 1 }} />
-      <Corner position="top-left" />
-      <Corner position="top-right" />
-      <Corner position="bottom-left" />
-      <Corner position="bottom-right" />
-    </View>
+    </Pressable>
   );
 }
 
 function Corner({ position }: { position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' }) {
   const vertical = position.includes('top') ? { top: 14 } : { bottom: 14 };
   const horizontal = position.includes('left') ? { left: 14 } : { right: 14 };
-  const style =
+  const shape =
     position === 'top-left'
-      ? { borderLeftWidth: 6, borderTopWidth: 6, borderTopLeftRadius: 12 }
+      ? { borderLeftWidth: 8, borderTopWidth: 8, borderTopLeftRadius: 14 }
       : position === 'top-right'
-        ? { borderRightWidth: 6, borderTopWidth: 6, borderTopRightRadius: 12 }
+        ? { borderRightWidth: 8, borderTopWidth: 8, borderTopRightRadius: 14 }
         : position === 'bottom-left'
-          ? { borderBottomWidth: 6, borderLeftWidth: 6, borderBottomLeftRadius: 12 }
-          : { borderBottomWidth: 6, borderRightWidth: 6, borderBottomRightRadius: 12 };
+          ? { borderBottomWidth: 8, borderLeftWidth: 8, borderBottomLeftRadius: 14 }
+          : { borderBottomWidth: 8, borderRightWidth: 8, borderBottomRightRadius: 14 };
 
   return (
     <View
       style={{
         borderColor: AUTH_COLORS.navy,
-        height: 38,
+        height: 44,
         position: 'absolute',
-        width: 38,
-        ...style,
+        width: 44,
+        ...shape,
         ...vertical,
         ...horizontal,
       }}
@@ -221,22 +230,23 @@ function ActionCircle({
   icon,
   onPress,
 }: {
-  icon: React.ComponentProps<typeof IconSymbol>['name'];
+  icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
   onPress: () => void;
 }) {
   return (
     <Pressable
+      accessibilityRole="button"
       onPress={onPress}
       style={{
         alignItems: 'center',
         backgroundColor: '#FFFFFF',
         borderRadius: 999,
-        height: 56,
+        height: 74,
         justifyContent: 'center',
-        width: 56,
+        width: 74,
       }}
     >
-      <IconSymbol color={AUTH_COLORS.navy} name={icon} size={28} />
+      <MaterialCommunityIcons color={AUTH_COLORS.navy} name={icon} size={38} />
     </Pressable>
   );
 }

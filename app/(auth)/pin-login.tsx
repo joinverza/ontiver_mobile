@@ -124,14 +124,16 @@ export default function PinLoginScreen() {
               >
                 {formatTime(lockTimer)}
               </Text>
-              <Pressable onPress={() => router.push('/recovery-entry')} style={{ marginTop: 22 }}>
-                <Text
-                  className="font-inter"
-                  style={{ color: AUTH_COLORS.ink, fontSize: 15, lineHeight: 20 }}
-                >
-                  Forgot PIN or lost device?
-                </Text>
-              </Pressable>
+              <View style={{ marginTop: 'auto', marginBottom: 24 }}>
+                <Pressable onPress={() => router.push('/recovery-entry')}>
+                  <Text
+                    className="font-inter"
+                    style={{ color: AUTH_COLORS.ink, fontSize: 15, lineHeight: 20 }}
+                  >
+                    Forgot PIN or lost device?
+                  </Text>
+                </Pressable>
+              </View>
             </View>
           ) : (
             <View style={{ flex: 1 }}>
@@ -151,8 +153,8 @@ export default function PinLoginScreen() {
                 </Text>
               ) : null}
 
-              <View style={{ alignItems: 'center', marginTop: 82 }}>
-                <Pressable onPress={() => router.push('/recovery-entry')}>
+              <View style={{ marginTop: 'auto', alignItems: 'center' }}>
+                <Pressable onPress={() => router.push('/recovery-entry')} style={{ marginBottom: 24 }}>
                   <Text
                     className="font-inter"
                     style={{ color: AUTH_COLORS.ink, fontSize: 15, lineHeight: 20 }}
@@ -160,9 +162,6 @@ export default function PinLoginScreen() {
                     Forgot PIN or lost device?
                   </Text>
                 </Pressable>
-              </View>
-
-              <View style={{ marginTop: 'auto' }}>
                 <DigitPad
                   onBackspace={() => setPin((value) => value.slice(0, -1))}
                   onDigit={(digit) => {

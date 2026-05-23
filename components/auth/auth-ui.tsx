@@ -1,11 +1,11 @@
-import React from 'react';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { useRouter } from 'expo-router';
-import { Image } from 'expo-image';
-import { Pressable, ScrollView, Text, TextInput, View } from '@/src/tw';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, ScrollView, Text, TextInput, View } from '@/src/tw';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
+import React from 'react';
 import type { KeyboardTypeOptions, TextInputProps, ViewStyle } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, {
   Circle,
   Defs,
@@ -614,25 +614,116 @@ export function SideDecorations() {
         style={{
           backgroundColor: AUTH_COLORS.navy,
           borderRadius: 999,
-          height: 240,
+          height: 340,
           position: 'absolute',
-          right: -156,
-          top: 80,
-          width: 240,
+          right: -180,
+          top: 60,
+          width: 200,
         }}
       />
       <View
         style={{
           backgroundColor: AUTH_COLORS.navy,
           borderRadius: 999,
-          bottom: 110,
-          height: 220,
-          left: -150,
+          bottom: 80,
+          height: 340,
+          left: -180,
           position: 'absolute',
-          width: 220,
+          width: 200,
         }}
       />
     </>
+  );
+}
+
+type WhiteCardProps = {
+  children: React.ReactNode;
+  style?: ViewStyle;
+};
+
+export function WhiteSheetCard({ children, style }: WhiteCardProps) {
+  return (
+    <View
+      style={[
+        {
+          backgroundColor: '#FFFFFF',
+          borderTopLeftRadius: 34,
+          borderTopRightRadius: 34,
+          flex: 1,
+        },
+        style,
+      ]}
+    >
+      {children}
+    </View>
+  );
+}
+
+type CurvedAccentProps = {
+  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'left-bottom' | 'right-middle';
+};
+
+export function CurvedAccent({ position = 'right-middle' }: CurvedAccentProps) {
+  // Support both old and new positioning systems
+  if (position === 'right-middle' || position === 'left-bottom') {
+    const isRight = position === 'right-middle';
+    return (
+      <View
+        style={{
+          backgroundColor: AUTH_COLORS.navy,
+          borderRadius: 999,
+          bottom: isRight ? undefined : 120,
+          height: isRight ? 300 : 260,
+          left: isRight ? undefined : -172,
+          position: 'absolute',
+          right: isRight ? -176 : undefined,
+          top: isRight ? 118 : undefined,
+          width: isRight ? 300 : 260,
+        }}
+      />
+    );
+  }
+
+  // New corner bracket positions
+  const cornerStyles = {
+    'top-left': {
+      top: 16,
+      left: 16,
+    },
+    'top-right': {
+      top: 16,
+      right: 16,
+    },
+    'bottom-left': {
+      bottom: 16,
+      left: 16,
+    },
+    'bottom-right': {
+      bottom: 16,
+      right: 16,
+    },
+  };
+
+  const style = cornerStyles[position as keyof typeof cornerStyles];
+
+  return (
+    <View
+      style={{
+        height: 40,
+        width: 40,
+        position: 'absolute',
+        ...style,
+      }}
+    >
+      <Svg height={40} width={40} viewBox="0 0 40 40">
+        <Circle
+          cx={20}
+          cy={20}
+          r={20}
+          fill={AUTH_COLORS.navy}
+        />
+      </Svg>
+    </View>
   );
 }
 
@@ -732,7 +823,15 @@ export function DigitPad({
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
   return (
-    <View style={{ gap: 4, marginTop: 12 }}>
+    <View
+      style={{
+        backgroundColor: '#D6D8E2',
+        marginHorizontal: -24,
+        marginTop: 12,
+        paddingHorizontal: 4,
+        paddingTop: 4,
+      }}
+    >
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
         {keys.map((key) => (
           <DigitKey

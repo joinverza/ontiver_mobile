@@ -21,7 +21,7 @@ const SLIDES = [
     id: 1,
     title: 'Your Identity. All in One Place.',
     description: 'Store your government ID, phone, address, and more — safely encrypted on your device.',
-    image: require('@/assets/images/onboarding-2.svg'),
+    image: require('@/assets/images/Group 2671.png'),
     buttonText: 'Next',
   },
   {
@@ -131,17 +131,18 @@ export default function OnboardingScreen() {
 
           <Pressable
             onPress={handleNext}
-            className="bg-[#0A0B1A] py-4 rounded-2xl flex-row items-center justify-center mb-6 h-[56px]"
+            className="bg-[#03023E] py-4 rounded-2xl flex-row items-center justify-center mb-6 h-[56px]"
           >
-            <Text className="text-white font-inter font-bold text-lg mr-2">
+            <Text className="text-white font-inter font-extrabold text-lg mr-2">
               {SLIDES[currentIndex].buttonText}
             </Text>
             {currentIndex > 0 && <IconSymbol name="arrow.right" size={20} color="white" />}
           </Pressable>
 
           <Pressable className="items-center pb-2" onPress={() => router.push('/login')}>
-            <Text className="text-slate-600 font-inter text-[15px]">
-              Already have an account? <Text className="text-slate-900 font-bold">Log in</Text>
+            <Text className="text-slate-600 font-inter text-[17px]">
+              {currentIndex > 0 && 'Already have an account? '}
+              <Text className="text-[#03023E] font-extrabold">{currentIndex > 0 ? 'Log in' : 'Skip'}</Text>
             </Text>
           </Pressable>
         </View>
